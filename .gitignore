@@ -1,0 +1,22 @@
+# Sensor Log Studio — keep private/local artifacts out of version control.
+
+# Private real-world logs and imports (never commit customer/vehicle data)
+private/
+imports/
+reports/
+
+# Local exports of real logs
+*.log.csv
+*.private.*
+*.local.*
+
+# Tooling / OS noise
+node_modules/
+test-results/
+playwright-report/
+private/
+exports/
+tests/evidence/*.txt
+.DS_Store
+Thumbs.db
+*.tmp
