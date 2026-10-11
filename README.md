@@ -1,5 +1,10 @@
 # Sensor Log Studio
 
+<!-- prototype-status:start -->
+> **Experimental concept prototype — idea exploration only.**
+> A work-in-progress demo, not a finished or production-ready product. Existing features and tests demonstrate the concept; they do not establish real-world reliability or complete functionality. Features may change or remain unfinished.
+<!-- prototype-status:end -->
+
 ![Decorative blue project card](assets/banner.png)
 
 Development and CI: [verification instructions](docs/verification.md).
@@ -9,7 +14,7 @@ parses, plots and exports — no server, no build step, no CDN, no runtime packa
 telemetry, or data uploads. A disk-opened copy works without network access. If hosted,
 your browser downloads this app's HTML/CSS/JavaScript files from the host; imported logs stay local.
 
-> Status: pre-release. Licensed under [MIT](LICENSE). Browser runtime has no package dependencies.
+> Status: experimental concept prototype, not a production release. Licensed under [MIT](LICENSE). Browser runtime has no package dependencies.
 
 ## Screenshot
 
