@@ -1,7 +1,10 @@
 name: verify
-on: [push, pull_request, workflow_dispatch]
+
+on: [push, pull_request]
+
 permissions:
   contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -11,15 +14,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
-      - run: npm ci
-      - run: npm test
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:browser
-      - name: Browser evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: browser-evidence
-          path: test-results/
-          if-no-files-found: ignore
+      - name: Install dev dependencies (browsers installed separately)
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Full default verification
+        run: npm run verify

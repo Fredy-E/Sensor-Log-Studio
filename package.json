@@ -1,6 +1,6 @@
 {
   "name": "sensor-log-studio",
-  "version": "0.1.0",
+  "version": "0.2.0-preview.1",
   "private": true,
   "license": "MIT",
   "engines": {
@@ -8,7 +8,10 @@
   },
   "scripts": {
     "test": "node --test tests/core.test.cjs",
-    "test:browser": "node tests/browser.cjs"
+    "test:browser": "node tests/browser.cjs",
+    "verify": "node --test tests/core.test.cjs && node tests/browser.cjs && node --test tests/mobile-overflow.test.cjs && node --test tests/preview-shell.test.cjs",
+    "test:ui": "node --test tests/preview-shell.test.cjs",
+    "test:mobile": "node --test tests/mobile-overflow.test.cjs"
   },
   "devDependencies": {
     "playwright": "1.63.0"

@@ -1,47 +1,90 @@
-/* Sensor Log Studio — dark blue engineering theme.
-   Deliberately written in readable, commented form (the sibling tools ship a
-   minified variant; this file is the maintainable source of truth). */
+/* Sensor Log Studio — portfolio workbench preview (dark-first, light-aware).
+   Navy/blue family surfaces, restrained gold reserved for status markers,
+   prototype notice and section kickers. System fonts only; fully offline. */
 
 :root {
-  color-scheme: dark;
-  --bg: #080e19;
-  --bg-glow: #0c1728;
-  --panel: #101a2b;
-  --panel-2: #14213a;
-  --border: #263957;
-  --border-strong: #315488;
-  --text: #dce6f8;
-  --muted: #95a8c8;
-  --accent: #72adff;
-  --blue: #266deb;
-  --blue-2: #1d5fc0;
-  --danger: #ff8a80;
-  --danger-bg: #351420;
-  --warn: #ffcf7a;
-  --radius: 9px;
-  --mono: "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+  color-scheme: dark light;
+  --ui-bg: #0c1422;
+  --ui-surface: #142034;
+  --ui-surface-2: #0e1830;
+  --ui-ink: #eef4ff;
+  --ui-muted: #adbbd2;
+  --ui-accent: #8cbcff;
+  --ui-accent-strong: #5f9bff;
+  --ui-border: #31445f;
+  --ui-border-strong: #47668f;
+  --ui-radius: 12px;
+  --ui-gold: #e8c877;
+  --ui-gold-deep: #9a7a24;
+  --ui-danger: #ffa19a;
+  --ui-warn: #ffd9a0;
+  --ui-ok: #9df0c8;
+  --ui-plot: #0a1a2e;
+  --ui-mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --ui-bg: #f2f5fa;
+    --ui-surface: #ffffff;
+    --ui-surface-2: #e9eff7;
+    --ui-ink: #1d2b44;
+    --ui-muted: #4d617e;
+    --ui-accent: #204fb0;
+    --ui-accent-strong: #204fb0;
+    --ui-border: #ccd8e9;
+    --ui-border-strong: #9db4d2;
+    --ui-gold: #7a5f14;
+    --ui-gold-deep: #7a5f14;
+    --ui-danger: #a4261f;
+    --ui-warn: #7a4d00;
+    --ui-ok: #0b5c36;
+    --ui-plot: #f7fafd;
+  }
 }
 
 * { box-sizing: border-box; }
-
 [hidden] { display: none !important; }
 
-html { background: var(--bg); }
+html { background: var(--ui-bg); }
 
 body {
   margin: 0;
-  background: radial-gradient(1200px 600px at 70% -10%, var(--bg-glow), var(--bg) 62%);
-  color: var(--text);
-  font: 15px/1.55 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
   min-height: 100vh;
+  color: var(--ui-ink);
+  background:
+    radial-gradient(1100px 480px at 75% -10%, rgba(140, 188, 255, 0.10), transparent 62%),
+    var(--ui-bg);
+  font: 15px/1.55 "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", sans-serif;
 }
 
-/* ---------- header ---------- */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--ui-accent);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 0 0 8px 0;
+  z-index: 60;
+}
+@media (prefers-color-scheme: light) {
+  .skip-link { color: #fff; }
+}
+.skip-link:focus { left: 0; }
 
-.site-head {
-  max-width: 1180px;
+/* ---------------- masthead ---------------- */
+
+.wb-masthead {
+  border-bottom: 1px solid var(--ui-border);
+  border-top: 4px solid var(--ui-gold-deep);
+  background: linear-gradient(180deg, var(--ui-surface), transparent 130%);
+}
+
+.masthead-inner {
+  max-width: 1220px;
   margin: 0 auto;
-  padding: 30px 22px 8px;
+  padding: 26px 22px 6px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -50,10 +93,10 @@ body {
 }
 
 .eyebrow {
-  font: 11px/1 var(--mono);
+  font: 11px/1 var(--ui-mono);
   letter-spacing: 2.4px;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--ui-gold);
   margin: 0 0 10px;
 }
 
@@ -64,16 +107,23 @@ h1 {
   margin: 0 0 6px;
 }
 
-.tagline { color: var(--muted); margin: 0; max-width: 62ch; }
+.tagline { color: var(--ui-muted); margin: 0; max-width: 62ch; }
+
+.masthead-side {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+}
 
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--ui-border);
   border-radius: 999px;
-  color: var(--muted);
+  color: var(--ui-muted);
+  background: var(--ui-surface-2);
   font-size: 12.5px;
   white-space: nowrap;
 }
@@ -82,61 +132,121 @@ h1 {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #7ee787;
-  box-shadow: 0 0 6px #7ee78788;
+  background: var(--ui-ok);
+  box-shadow: 0 0 6px rgba(120, 230, 170, 0.55);
 }
 
-/* ---------- layout ---------- */
+.wb-facts {
+  list-style: none;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  justify-content: flex-end;
+}
+
+.wb-facts li {
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: var(--ui-muted);
+  background: var(--ui-surface-2);
+}
+
+.wb-facts li span { color: var(--ui-gold); font-weight: 700; font-family: var(--ui-mono); }
+
+.prototype-notice {
+  max-width: 1220px;
+  margin: 12px auto 16px;
+  padding: 10px 14px 10px 16px;
+  border: 1px solid var(--ui-border);
+  border-left: 4px solid var(--ui-gold-deep);
+  border-radius: 8px;
+  background: var(--ui-surface-2);
+  color: var(--ui-ink);
+  font-size: 13.5px;
+}
+
+/* ---------------- workbench layout ---------------- */
 
 .layout {
-  max-width: 1180px;
+  max-width: 1220px;
   margin: 0 auto;
-  padding: 10px 22px 42px;
+  padding: 6px 22px 42px;
   display: grid;
   gap: 18px;
 }
-
-/* Grid children must be allowed to shrink below their content min-size, or the
-   page body scrolls sideways on narrow screens. The plot and the legend table
-   keep their own contained horizontal scroll instead (see .plot-host and
-   .table-scroll). */
 .layout > * { min-width: 0; }
 
+.wb-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.wb-grid > * { min-width: 0; }
+
+.wb-col { display: grid; gap: 18px; align-content: start; min-width: 0; }
+
 .panel {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
   padding: 18px 20px;
+  min-width: 0;
 }
 
 .panel h2 {
   font-size: 17px;
-  font-weight: 600;
+  font-weight: 650;
   letter-spacing: -0.2px;
-  margin: 0 0 13px;
+  margin: 0 0 6px;
+  padding-left: 12px;
+  border-left: 3px solid var(--ui-gold-deep);
 }
 
 .panel h2 .step {
-  color: var(--accent);
-  font: 12px var(--mono);
+  color: var(--ui-accent);
+  font: 12px var(--ui-mono);
   margin-right: 9px;
   vertical-align: 1px;
 }
 
-/* ---------- controls ---------- */
+.workspace-lede { color: var(--ui-muted); font-size: 13px; margin: 0 0 12px; }
+
+.workspace-time {
+  border: 1px dashed var(--ui-border-strong);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: var(--ui-surface-2);
+  min-width: 0;
+}
+
+fieldset, fieldset.workspace-channels {
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  padding: 10px 13px 12px;
+  margin: 0;
+  min-width: 0;
+}
+
+legend { font-size: 12.5px; color: var(--ui-muted); padding: 0 6px; }
+
+/* ---------------- controls ---------------- */
 
 .field-row {
   display: flex;
   flex-wrap: wrap;
   gap: 10px 14px;
   align-items: flex-end;
+  min-width: 0;
 }
 
 .field { display: grid; gap: 5px; min-width: 0; }
-.field > label { font-size: 12.5px; color: var(--muted); }
-
-/* Let selects/inputs shrink with their field (long option text must never
-   force the page body wider than the viewport). */
+.field > label { font-size: 12.5px; color: var(--ui-muted); }
 .field > select, .field > input { min-width: 0; }
 
 button, .btn, select, input, textarea { font: inherit; color: inherit; }
@@ -147,50 +257,53 @@ button, .btn {
   justify-content: center;
   gap: 8px;
   padding: 9px 14px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--ui-border-strong);
   border-radius: 7px;
-  background: #172740;
-  color: var(--text);
+  background: var(--ui-surface-2);
+  color: var(--ui-ink);
   cursor: pointer;
   line-height: 1.25;
   text-decoration: none;
   user-select: none;
+  max-width: 100%;
 }
 
-button:hover:not(:disabled), .btn:hover { border-color: var(--accent); background: #1d3352; }
-button.primary, .btn.primary { background: var(--blue); border-color: #3c7bf0; color: #fff; }
-button.primary:hover:not(:disabled) { background: var(--blue-2); }
+button:hover:not(:disabled), .btn:hover { border-color: var(--ui-accent); }
+button.primary, .btn.primary { background: var(--ui-accent-strong); border-color: var(--ui-accent-strong); color: #fff; }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
 button.tiny { padding: 4px 10px; font-size: 12.5px; }
 
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+:focus-visible {
+  outline: 3px solid var(--ui-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 
-/* The file input is visually hidden (1×1, clipped), so a focus ring drawn on it
-   would be invisible. When it has keyboard focus, draw the ring on its visible
-   "Choose CSV file…" label instead. */
 label.btn:has(+ input[type="file"]:focus-visible) {
-  outline: 2px solid var(--accent);
+  outline: 3px solid var(--ui-accent);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 select, input[type="number"], input[type="text"], textarea {
-  background: #0c1728;
-  border: 1px solid var(--border);
+  background: var(--ui-surface-2);
+  border: 1px solid var(--ui-border);
   border-radius: 7px;
   padding: 8px 10px;
   max-width: 100%;
+  color: var(--ui-ink);
 }
 
 textarea {
   width: 100%;
   min-height: 92px;
   resize: vertical;
-  font-family: var(--mono);
+  font-family: var(--ui-mono);
   font-size: 12.5px;
+  min-width: 0;
 }
 
-input[type="checkbox"] { accent-color: var(--blue); width: 16px; height: 16px; }
+input[type="checkbox"] { accent-color: var(--ui-accent-strong); width: 16px; height: 16px; }
 
 .sr-only {
   position: absolute;
@@ -204,18 +317,21 @@ input[type="checkbox"] { accent-color: var(--blue); width: 16px; height: 16px; }
   border: 0;
 }
 
-.hint { color: var(--muted); font-size: 12.5px; margin: 11px 0 0; }
+.hint { color: var(--ui-muted); font-size: 12.5px; margin: 11px 0 0; }
 
-/* ---------- status & messages ---------- */
+/* ---------------- status ---------------- */
 
 .status { min-height: 1.45em; margin: 13px 0 0; font-size: 13.5px; }
 
 .error {
   margin: 10px 0 0;
   padding: 10px 13px;
-  border-left: 3px solid var(--danger);
-  background: var(--danger-bg);
-  color: #ffd9d6;
+  border-left: 3px solid var(--ui-danger);
+  background: var(--ui-surface-2);
+  border-top: 1px solid var(--ui-border);
+  border-right: 1px solid var(--ui-border);
+  border-bottom: 1px solid var(--ui-border);
+  color: var(--ui-ink);
   border-radius: 0 7px 7px 0;
   font-size: 13.5px;
   white-space: pre-wrap;
@@ -224,34 +340,23 @@ input[type="checkbox"] { accent-color: var(--blue); width: 16px; height: 16px; }
 .notes {
   margin: 12px 0 0;
   padding-left: 18px;
-  color: var(--warn);
+  color: var(--ui-warn);
   font-size: 13px;
   display: grid;
   gap: 4px;
 }
-
 .notes:empty { display: none; }
 
-/* User-supplied text (file names, channel names, labels) must never widen the
-   page: allow breaks anywhere inside long unbroken strings. */
 .status, .error, .hint, .notes li, .channel span, ol.annots li span { overflow-wrap: anywhere; }
 
-/* ---------- channel picker ---------- */
-
-fieldset {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 13px 12px;
-  margin: 0;
-}
-
-legend { font-size: 12.5px; color: var(--muted); padding: 0 6px; }
+/* ---------------- channels ---------------- */
 
 .channels {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
   gap: 5px 16px;
   margin-top: 7px;
+  min-width: 0;
 }
 
 .channel {
@@ -261,12 +366,14 @@ legend { font-size: 12.5px; color: var(--muted); padding: 0 6px; }
   font-size: 13.5px;
   padding: 3px 0;
   cursor: pointer;
+  min-width: 0;
 }
 
+.channel--sort { align-items: center; padding-top: 20px; }
 .channel input { margin-top: 3px; flex: 0 0 auto; }
 .channel input:disabled + span { opacity: 0.5; }
 
-/* ---------- plot ---------- */
+/* ---------------- plot stage ---------------- */
 
 .toolbar {
   display: flex;
@@ -276,19 +383,25 @@ legend { font-size: 12.5px; color: var(--muted); padding: 0 6px; }
   margin: 0 0 11px;
 }
 
+.toolbar-group { display: flex; gap: 8px; flex-wrap: wrap; }
 .toolbar .spacer { flex: 1 1 0; }
 .toolbar .hint { margin: 0; }
 
+.plot-frame { margin: 0; min-width: 0; }
+
+.plot-frame:focus-within { outline: 3px solid var(--ui-accent); outline-offset: 2px; border-radius: 8px; }
+
 .plot-host {
-  border: 1px solid var(--border);
+  border: 1px solid var(--ui-border-strong);
   border-radius: 8px;
-  background: #0a1a2e;
+  background: var(--ui-plot);
   overflow-x: auto;
+  box-shadow: inset 0 1px 0 rgba(140, 188, 255, 0.08);
 }
 
 .plot-host.msg {
   padding: 26px 18px;
-  color: var(--muted);
+  color: var(--ui-muted);
   font-size: 13.5px;
 }
 
@@ -304,17 +417,22 @@ legend { font-size: 12.5px; color: var(--muted); padding: 0 6px; }
 
 .plot-host.dragging svg { cursor: grabbing; }
 
-.meta {
-  color: var(--muted);
-  font-size: 12.5px;
-  font-family: var(--mono);
-  margin: 10px 0 0;
+.plot-caption {
+  color: var(--ui-muted);
+  font-size: 12px;
+  margin-top: 6px;
 }
 
-/* ---------- legend & stats ---------- */
+.meta {
+  color: var(--ui-muted);
+  font-size: 12.5px;
+  font-family: var(--ui-mono);
+  margin: 10px 0 0;
+  overflow-wrap: anywhere;
+}
 
-/* The legend table keeps its own horizontal scroll on narrow screens so its
-   column min-sizes can never widen the page body. */
+/* ---------------- legend ---------------- */
+
 .table-scroll { overflow-x: auto; }
 
 table.legend {
@@ -326,7 +444,7 @@ table.legend {
 
 table.legend caption {
   text-align: left;
-  color: var(--muted);
+  color: var(--ui-muted);
   font-size: 12.5px;
   padding-bottom: 7px;
 }
@@ -334,11 +452,11 @@ table.legend caption {
 table.legend th, table.legend td {
   text-align: left;
   padding: 6px 8px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--ui-border);
   vertical-align: middle;
 }
 
-table.legend th { color: var(--muted); font-weight: 500; font-size: 12px; }
+table.legend th { color: var(--ui-muted); font-weight: 600; font-size: 12px; }
 
 .swatch {
   display: inline-block;
@@ -348,9 +466,9 @@ table.legend th { color: var(--muted); font-weight: 500; font-size: 12px; }
   vertical-align: -1px;
 }
 
-.scale-input { width: 86px; padding: 4px 7px; font-size: 12.5px; }
+.scale-input { width: 86px; padding: 4px 7px; font-size: 12.5px; min-width: 0; }
 
-/* ---------- annotations ---------- */
+/* ---------------- annotations ---------------- */
 
 ol.annots {
   list-style: none;
@@ -365,60 +483,84 @@ ol.annots li {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  background: var(--panel-2);
-  border: 1px solid var(--border);
+  background: var(--ui-surface-2);
+  border: 1px solid var(--ui-border);
+  border-left: 3px solid var(--ui-gold-deep);
   border-radius: 7px;
   padding: 6px 10px;
   font-size: 13.5px;
+  min-width: 0;
 }
 
-/* ---------- about / footer ---------- */
+/* ---------------- about / footer ---------------- */
 
 details.about {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
   padding: 14px 20px;
+  min-width: 0;
 }
 
-details.about summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+details.about summary { cursor: pointer; color: var(--ui-accent); font-weight: 600; }
+details.about summary:focus-visible { outline: 3px solid var(--ui-accent); outline-offset: 2px; }
 
 details.about h3 { font-size: 14px; margin: 15px 0 4px; }
 
 details.about ul {
   margin: 6px 0;
   padding-left: 20px;
-  color: var(--muted);
+  color: var(--ui-muted);
   font-size: 13px;
   display: grid;
   gap: 4px;
 }
 
 details.about code, .site-foot code {
-  font-family: var(--mono);
+  font-family: var(--ui-mono);
   font-size: 12px;
-  color: var(--text);
+  color: var(--ui-ink);
 }
 
 .site-foot {
-  max-width: 1180px;
+  max-width: 1220px;
   margin: 0 auto;
   padding: 0 22px 36px;
-  color: var(--muted);
+  color: var(--ui-muted);
   font-size: 12.5px;
 }
 
-/* ---------- responsive ---------- */
+/* ---------------- responsive ---------------- */
+
+@media (max-width: 980px) {
+  .wb-grid { grid-template-columns: 1fr; }
+  .masthead-side { justify-items: start; }
+  .wb-facts { justify-content: flex-start; }
+}
 
 @media (max-width: 720px) {
-  .site-head { padding: 20px 12px 4px; }
-  .layout { padding: 8px 12px 30px; }
+  .masthead-inner { padding: 20px 12px 4px; }
+  .layout { padding: 6px 12px 30px; }
   .panel { padding: 14px; }
-  .plot-host svg { min-width: 620px; } /* keep plots legible: scroll instead of squish */
-  .channels { grid-template-columns: 1fr; }
+  .plot-host svg { min-width: 620px; }
+  .channels { grid-template-columns: minmax(0, 1fr); }
   .site-foot { padding: 0 12px 30px; }
+  .prototype-notice { margin: 10px 12px 12px; }
+  .channel--sort { padding-top: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; animation: none !important; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  html { scroll-behavior: auto; }
+}
+
+@media print {
+  :root { color-scheme: light; }
+  body { background: #fff; color: #000; }
+  .wb-masthead { border-top-color: #000; }
+  .masthead-side, .toolbar, .toolbar-group, details.about, .site-foot { display: none !important; }
+  .layout, .wb-grid, .wb-col { display: block; }
+  .panel { border: 1px solid #666; break-inside: avoid; margin-bottom: 12px; background: #fff; color: #000; }
+  .plot-host { overflow: visible; }
+  .prototype-notice { border: 1px solid #666; color: #000; }
 }

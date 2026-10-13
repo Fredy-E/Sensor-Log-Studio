@@ -196,3 +196,14 @@ ignored `test-results/` directory.
 
 No storage, no cookies, no network requests, no telemetry. Files are read locally via the
 File API; exports are generated locally as Blob downloads.
+
+## Verify (default)
+
+Full default verification (unit + browser + mobile layout + preview-shell UI regression):
+
+```sh
+npm run verify
+# = node --test tests/core.test.cjs && node tests/browser.cjs && node --test tests/mobile-overflow.test.cjs && node --test tests/preview-shell.test.cjs
+```
+
+`npm test` runs the core unit subset only. Browser suites need Playwright 1.63.0 (dev-only) plus Chrome/Chromium.

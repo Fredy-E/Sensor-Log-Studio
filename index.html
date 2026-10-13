@@ -3,158 +3,182 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
 <meta name="description" content="Sensor Log Studio — offline CSV sensor log viewer with SVG plots. No server, no network, no telemetry.">
 <title>Sensor Log Studio — offline CSV sensor log viewer</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="site-head">
-  <div>
-    <p class="eyebrow">Offline engineering tool</p>
-    <h1>Sensor Log Studio</h1>
-    <p class="tagline">Import a CSV sensor log, plot selected channels as SVG, inspect gaps, zoom, annotate, export.</p>
+<header class="wb-masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <p class="eyebrow">Offline engineering workbench</p>
+      <h1>Sensor Log Studio</h1>
+      <p class="tagline">Import a CSV sensor log, plot selected channels as SVG, inspect gaps, zoom, annotate, export.</p>
+    </div>
+    <div class="masthead-side">
+      <span class="badge" title="This page makes no network requests."><span class="dot" aria-hidden="true"></span>Offline · no network</span>
+      <ul class="wb-facts" aria-label="Hard limits">
+        <li><span>5 MB</span> max import</li>
+        <li><span>50,000</span> rows max</li>
+        <li><span>2,000</span> points / channel</li>
+      </ul>
+    </div>
   </div>
-  <span class="badge" title="This page makes no network requests."><span class="dot" aria-hidden="true"></span>Offline · no network</span>
+  <p id="prototype-notice" class="prototype-notice" role="note">Experimental concept prototype — idea exploration only. Not a finished product and not production-ready. Local demo tooling only; nothing here certifies compatibility or readiness.</p>
 </header>
 
-<main class="layout">
+<main class="layout" id="main" data-ui-revision="portfolio-preview-1" tabindex="-1">
+  <div class="wb-grid">
 
-  <!-- 1 · Import ---------------------------------------------------------- -->
-  <section class="panel" id="import-panel" aria-labelledby="import-h">
-    <h2 id="import-h"><span class="step">01</span>Import a log</h2>
+    <div class="wb-col wb-col--controls">
+      <!-- 1 · Import ------------------------------------------------------ -->
+      <section class="panel" id="import-panel" aria-labelledby="import-h">
+        <h2 id="import-h"><span class="step" aria-hidden="true">01</span>Import a log</h2>
 
-    <div class="field-row">
-      <label class="btn" for="file-input">Choose CSV file…</label>
-      <input class="sr-only" type="file" id="file-input" data-testid="file-input" accept=".csv,.txt,text/csv">
-      <button type="button" class="btn primary" id="btn-load-example" data-testid="load-example">Load fictional example</button>
-      <div class="field">
-        <label for="delimiter-select">Delimiter</label>
-        <select id="delimiter-select" data-testid="delimiter-select">
-          <option value="" selected>Auto-detect</option>
-          <option value=",">Comma (,)</option>
-          <option value=";">Semicolon (;)</option>
-          <option value="&#9;">Tab (&#8594;)</option>
-        </select>
-      </div>
+        <div class="field-row">
+          <label class="btn" for="file-input">Choose CSV file…</label>
+          <input class="sr-only" type="file" id="file-input" data-testid="file-input" accept=".csv,.txt,text/csv">
+          <button type="button" class="btn primary" id="btn-load-example" data-testid="load-example">Load fictional example</button>
+          <div class="field">
+            <label for="delimiter-select">Delimiter</label>
+            <select id="delimiter-select" data-testid="delimiter-select">
+              <option value="" selected>Auto-detect</option>
+              <option value=",">Comma (,)</option>
+              <option value=";">Semicolon (;)</option>
+              <option value="&#9;">Tab (&#8594;)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row" style="margin-top:12px">
+          <label for="paste-input" class="sr-only">Paste CSV text</label>
+          <textarea id="paste-input" data-testid="paste-input" placeholder="…or paste CSV text here (first row = header)"></textarea>
+        </div>
+        <div class="field-row" style="margin-top:8px">
+          <button type="button" class="btn" id="btn-load-paste" data-testid="load-paste">Use pasted text</button>
+          <span class="hint">Current source: <span id="source-name" data-testid="source-name">—</span></span>
+        </div>
+
+        <p class="status" id="status-line" data-testid="status-line" role="status" aria-live="polite"></p>
+        <p class="error" id="error-line" data-testid="error-line" role="alert" hidden></p>
+
+        <p class="hint">
+          Files never leave this machine — parsing runs in this page. Limits: 5&nbsp;MB / 50,000 rows per import.
+          Generic header-first CSV only (not a universal VCDS multi-header parser). The built-in example is
+          fictional, synthetic demo data — not from a real vehicle.
+        </p>
+      </section>
+
+      <!-- 2 · Channel & time workspace ------------------------------------- -->
+      <section class="panel workspace" id="mapping-panel" data-testid="mapping-panel" aria-labelledby="map-h" hidden>
+        <h2 id="map-h"><span class="step" aria-hidden="true">02</span>Channel &amp; time workspace</h2>
+        <p class="workspace-lede">Pick the elapsed-time column, fix row order, then tick the numeric channels to draw. Gaps stay gaps — nothing is interpolated or zero-filled.</p>
+
+        <div class="workspace-time" id="workspace-channels" data-testid="workspace-channels">
+          <div class="field-row">
+            <div class="field">
+              <label for="time-column">Time column (configurable numeric elapsed time)</label>
+              <select id="time-column" data-testid="time-column"></select>
+            </div>
+            <label class="channel channel--sort">
+              <input type="checkbox" id="sort-by-time" data-testid="sort-by-time">
+              <span>Sort samples by time (fixes logs that are out of order)</span>
+            </label>
+          </div>
+        </div>
+
+        <fieldset class="workspace-channels">
+          <legend>Channels — selectable finite numeric columns</legend>
+          <div class="channels" id="channel-list" data-testid="channel-list"></div>
+        </fieldset>
+
+        <ul class="notes" id="parse-notes" data-testid="parse-notes" aria-label="Import notes and warnings"></ul>
+      </section>
     </div>
 
-    <div class="field-row" style="margin-top:12px">
-      <label for="paste-input" class="sr-only">Paste CSV text</label>
-      <textarea id="paste-input" data-testid="paste-input" placeholder="…or paste CSV text here (first row = header)"></textarea>
+    <div class="wb-col wb-col--stage">
+      <!-- 3 · Plot --------------------------------------------------------- -->
+      <section class="panel stage" id="plot-panel" data-testid="plot-panel" aria-labelledby="plot-h" hidden>
+        <h2 id="plot-h"><span class="step" aria-hidden="true">03</span>Plot</h2>
+
+        <div class="toolbar">
+          <div class="toolbar-group" role="group" aria-label="Zoom controls">
+            <button type="button" class="btn" id="btn-zoom-in" data-testid="zoom-in" title="Zoom in">Zoom +</button>
+            <button type="button" class="btn" id="btn-zoom-out" data-testid="zoom-out" title="Zoom out">Zoom −</button>
+            <button type="button" class="btn" id="btn-zoom-reset" data-testid="zoom-reset" title="Show the full time range">Reset zoom</button>
+          </div>
+          <span class="spacer"></span>
+          <span class="hint">Mouse wheel zooms · drag pans · Esc resets · click sets annotation time</span>
+        </div>
+
+        <figure class="plot-frame">
+          <div id="plot" class="plot-host" data-testid="plot" aria-label="Sensor log plot"></div>
+          <figcaption class="plot-caption">Gap-preserving traces · at most 2,000 points per channel (min/max envelope, extrema preserved)</figcaption>
+        </figure>
+        <p class="meta" id="meta-line" data-testid="meta-line"></p>
+
+        <div class="table-scroll">
+          <table class="legend" id="legend-table">
+            <caption>Channels — plotted value = file value × scale. Statistics shown for plotted (scaled) values, computed over the full imported channel (zooming does not change them); gaps are excluded, never zero-filled.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Color</th>
+                <th scope="col">Channel</th>
+                <th scope="col">Scale</th>
+                <th scope="col">Drawn/all</th>
+                <th scope="col">Min</th>
+                <th scope="col">Max</th>
+                <th scope="col">Mean</th>
+              </tr>
+            </thead>
+            <tbody id="legend-body" data-testid="legend-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4 · Annotations -------------------------------------------------- -->
+      <section class="panel" id="annot-panel" data-testid="annot-panel" aria-labelledby="ann-h" hidden>
+        <h2 id="ann-h"><span class="step" aria-hidden="true">04</span>Timestamp annotations</h2>
+        <div class="field-row">
+          <div class="field">
+            <label for="annotation-time">Time (same units as the time column)</label>
+            <input type="number" step="any" id="annotation-time" data-testid="annotation-time" placeholder="e.g. 12.5">
+          </div>
+          <div class="field">
+            <label for="annotation-label">Label</label>
+            <input type="text" id="annotation-label" data-testid="annotation-label" placeholder="e.g. sensor dropout" maxlength="120">
+          </div>
+          <button type="button" class="btn" id="btn-add-annotation" data-testid="add-annotation">Add annotation</button>
+        </div>
+        <p class="error" id="annotation-error" data-testid="annotation-error" role="alert" hidden></p>
+        <ol class="annots" id="annotation-list" data-testid="annotation-list" aria-label="Annotations"></ol>
+        <p class="hint">Click the plot to pick a time. Annotations live only until you reload the page — nothing is saved.</p>
+      </section>
+
+      <!-- 5 · Export ------------------------------------------------------- -->
+      <section class="panel" id="export-panel" data-testid="export-panel" aria-labelledby="exp-h" hidden>
+        <h2 id="exp-h"><span class="step" aria-hidden="true">05</span>Export</h2>
+        <div class="field-row">
+          <div class="field">
+            <label for="range-mode">CSV range</label>
+            <select id="range-mode" data-testid="range-mode">
+              <option value="full" selected>Full data (all rows)</option>
+              <option value="zoom">Current zoom window</option>
+            </select>
+          </div>
+          <button type="button" class="btn" id="btn-download-csv" data-testid="download-csv">Download filtered CSV</button>
+          <button type="button" class="btn" id="btn-download-svg" data-testid="download-svg">Download standalone SVG</button>
+        </div>
+        <p class="hint">
+          CSV exports selected channels with the raw file values (gaps stay empty, never 0) and guards
+          text cells against spreadsheet formula injection. The SVG is a self-contained, standalone file
+          with axes, legend and scaling notes.
+        </p>
+      </section>
     </div>
-    <div class="field-row" style="margin-top:8px">
-      <button type="button" class="btn" id="btn-load-paste" data-testid="load-paste">Use pasted text</button>
-      <span class="hint">Current source: <span id="source-name" data-testid="source-name">—</span></span>
-    </div>
-
-    <p class="status" id="status-line" data-testid="status-line" role="status" aria-live="polite"></p>
-    <p class="error" id="error-line" data-testid="error-line" role="alert" hidden></p>
-
-    <p class="hint">
-      Files never leave this machine — parsing runs in this page. Limits: 5&nbsp;MB / 50,000 rows per import.
-      Generic header-first CSV only (not a universal VCDS multi-header parser). The built-in example is
-      fictional, synthetic demo data — not from a real vehicle.
-    </p>
-  </section>
-
-  <!-- 2 · Columns ---------------------------------------------------------- -->
-  <section class="panel" id="mapping-panel" data-testid="mapping-panel" aria-labelledby="map-h" hidden>
-    <h2 id="map-h"><span class="step">02</span>Columns</h2>
-
-    <div class="field-row">
-      <div class="field">
-        <label for="time-column">Time column (configurable numeric elapsed time)</label>
-        <select id="time-column" data-testid="time-column"></select>
-      </div>
-      <label class="channel" style="padding-top:20px">
-        <input type="checkbox" id="sort-by-time" data-testid="sort-by-time">
-        <span>Sort samples by time (fixes logs that are out of order)</span>
-      </label>
-    </div>
-
-    <fieldset style="margin-top:14px">
-      <legend>Channels — selectable finite numeric columns</legend>
-      <div class="channels" id="channel-list" data-testid="channel-list"></div>
-    </fieldset>
-
-    <ul class="notes" id="parse-notes" data-testid="parse-notes" aria-label="Import notes and warnings"></ul>
-  </section>
-
-  <!-- 3 · Plot ------------------------------------------------------------- -->
-  <section class="panel" id="plot-panel" data-testid="plot-panel" aria-labelledby="plot-h" hidden>
-    <h2 id="plot-h"><span class="step">03</span>Plot</h2>
-
-    <div class="toolbar">
-      <button type="button" class="btn" id="btn-zoom-in" data-testid="zoom-in" title="Zoom in">Zoom +</button>
-      <button type="button" class="btn" id="btn-zoom-out" data-testid="zoom-out" title="Zoom out">Zoom −</button>
-      <button type="button" class="btn" id="btn-zoom-reset" data-testid="zoom-reset" title="Show the full time range">Reset zoom</button>
-      <span class="spacer"></span>
-      <span class="hint">Mouse wheel zooms · drag pans · Esc resets · click sets annotation time</span>
-    </div>
-
-    <div id="plot" class="plot-host" data-testid="plot" aria-label="Sensor log plot"></div>
-    <p class="meta" id="meta-line" data-testid="meta-line"></p>
-
-    <div class="table-scroll">
-      <table class="legend" id="legend-table">
-        <caption>Channels — plotted value = file value × scale. Statistics shown for plotted (scaled) values, computed over the full imported channel (zooming does not change them); gaps are excluded, never zero-filled.</caption>
-        <thead>
-          <tr>
-            <th scope="col">Color</th>
-            <th scope="col">Channel</th>
-            <th scope="col">Scale</th>
-            <th scope="col">Drawn/all</th>
-            <th scope="col">Min</th>
-            <th scope="col">Max</th>
-            <th scope="col">Mean</th>
-          </tr>
-        </thead>
-        <tbody id="legend-body" data-testid="legend-body"></tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- 4 · Annotations ------------------------------------------------------ -->
-  <section class="panel" id="annot-panel" data-testid="annot-panel" aria-labelledby="ann-h" hidden>
-    <h2 id="ann-h"><span class="step">04</span>Timestamp annotations</h2>
-    <div class="field-row">
-      <div class="field">
-        <label for="annotation-time">Time (same units as the time column)</label>
-        <input type="number" step="any" id="annotation-time" data-testid="annotation-time" placeholder="e.g. 12.5">
-      </div>
-      <div class="field">
-        <label for="annotation-label">Label</label>
-        <input type="text" id="annotation-label" data-testid="annotation-label" placeholder="e.g. sensor dropout" maxlength="120">
-      </div>
-      <button type="button" class="btn" id="btn-add-annotation" data-testid="add-annotation">Add annotation</button>
-    </div>
-    <p class="error" id="annotation-error" data-testid="annotation-error" role="alert" hidden></p>
-    <ol class="annots" id="annotation-list" data-testid="annotation-list" aria-label="Annotations"></ol>
-    <p class="hint">Click the plot to pick a time. Annotations live only until you reload the page — nothing is saved.</p>
-  </section>
-
-  <!-- 5 · Export ----------------------------------------------------------- -->
-  <section class="panel" id="export-panel" data-testid="export-panel" aria-labelledby="exp-h" hidden>
-    <h2 id="exp-h"><span class="step">05</span>Export</h2>
-    <div class="field-row">
-      <div class="field">
-        <label for="range-mode">CSV range</label>
-        <select id="range-mode" data-testid="range-mode">
-          <option value="full" selected>Full data (all rows)</option>
-          <option value="zoom">Current zoom window</option>
-        </select>
-      </div>
-      <button type="button" class="btn" id="btn-download-csv" data-testid="download-csv">Download filtered CSV</button>
-      <button type="button" class="btn" id="btn-download-svg" data-testid="download-svg">Download standalone SVG</button>
-    </div>
-    <p class="hint">
-      CSV exports selected channels with the raw file values (gaps stay empty, never 0) and guards
-      text cells against spreadsheet formula injection. The SVG is a self-contained, standalone file
-      with axes, legend and scaling notes.
-    </p>
-  </section>
+  </div>
 
   <details class="about">
     <summary>Supported CSV format, limits &amp; honest limitations</summary>
